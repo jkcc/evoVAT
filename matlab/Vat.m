@@ -1,4 +1,4 @@
-function [mRearrangedDis, vPermVerts, vMstChain, vMinWeights, mMst, vVertPos] = Vat(mDis, bVisualise)
+function [mRearrangedDis, vPermVerts, vMstChain, vMinWeights, mMst, vVertPos] = Vat(mDis)
     % Example function call: [DV,I] = VAT(D);
     %
     % *** Input Parameters ***
@@ -88,10 +88,4 @@ function [mRearrangedDis, vPermVerts, vMstChain, vMinWeights, mMst, vVertPos] = 
     % step 4
     mRearrangedDis=mDis(vPermVerts, vPermVerts);
     
-    if bVisualise
-       figure;
-       colormap(hsv);
-       imagesc(mRearrangedDis);
-    end
-
 end % end of function

@@ -1,4 +1,4 @@
-function visualiseVat(mDis, vRearrangedVert, varargin)
+function visualiseVat(mDis, vRearrangedVert, sHeading, varargin)
 %
 % Visualise the VAT image.
 %
@@ -15,12 +15,20 @@ function visualiseVat(mDis, vRearrangedVert, varargin)
         case 2
             cmap = varargin{1};
             bVisualiseLabels = varargin{2};
+        case 3
+            cmap = varargin{1};
+            bVisualiseLabels = varargin{2};            
+            bSubplot = varargin{3};
         otherwise
     end % end of switch
         
-    figure;
-    colormap(cmap);
+    if ~bSubplot
+        figure;
+        hold on;
+        colormap(cmap);
+    end
     imagesc(mDis(vRearrangedVert, vRearrangedVert));
+    title(sHeading);
     
     if bVisualiseLabels
         set(gca,'XTickLabel', vRearrangedVert);
@@ -28,6 +36,9 @@ function visualiseVat(mDis, vRearrangedVert, varargin)
         set(gca,'XTick', 1:length(vRearrangedVert));
         set(gca,'YTick', 1:length(vRearrangedVert));
     end
-    hold off;
+    
+    if ~bSubplot
+        hold off;
+    end
        
 end % end of function

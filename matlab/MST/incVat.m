@@ -1,4 +1,4 @@
-function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDis, mExist, mMst, mNewPtsDis, bVisualise)
+function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDis, mExist, mMst, mNewPtsDis)
 % incVat()
 % Updates an existing Vat image with the new points described in mRNew.
 % The new points are added sequentially to the end.
@@ -12,7 +12,6 @@ function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDi
 %           should be n' by (new points number), where n' = n + new points
 %           number.  
 % rootVert  - Root vertex.
-% bVisualise    - Whether to visualise the updated MST.
 %
 % OUTPUT:
 % mNewDis   - Updated distance measure with the new distances.

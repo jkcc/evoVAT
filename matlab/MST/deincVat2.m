@@ -1,4 +1,4 @@
-function [mNewDis,vRearrangedVert,mNewMst,mNewExist,vNewRoot] = deincVat2(mDis,mMst,mExist,vPointsToDel,bVisualise)
+function [mNewDis,vRearrangedVert,mNewMst,mNewExist,vNewRoot] = deincVat2(mDis,mMst,mExist,vPointsToDel)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
     mNewMst = mMst;
@@ -10,7 +10,7 @@ function [mNewDis,vRearrangedVert,mNewMst,mNewExist,vNewRoot] = deincVat2(mDis,m
     mNewDis(vPointsToDel,:)=[];
     mNewDis(:,vPointsToDel)=[];
     
-    [~, vRearrangedVert, ~, ~, mNewMst] = Vat(mNewDis, bVisualise);
+    [~, vRearrangedVert, ~, ~, mNewMst] = Vat(mNewDis);
     vNewRoot=vRearrangedVert(1);
 
 end
