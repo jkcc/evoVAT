@@ -11,7 +11,7 @@ classdef AlignSeqAbsDiff
     end
         
     methods
-        function obj = AlignSeqPos(vPrevSeq)
+        function obj = AlignSeqAbsDiff(vPrevSeq)
             obj.m_vPrevVertOrder = vPrevSeq;
         end % end of constructor
         

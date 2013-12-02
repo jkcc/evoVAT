@@ -11,9 +11,11 @@ function [mRearrangedDis, vPermVerts, vMstChain, vMinWeights, mMst, vVertPos] = 
 % vMinWeights       - MST weights.
 % mMst              - MST.
 %
-% It appears to be an implementation of Prim's algorithm.
+% Prim's algorithm.
+% Uses both pairwise distances and alignment information to construct the
+% minimal cost traversal.
 %
-% @author: Jeffrey Chan, 5/2013
+% @author: Jeffrey Chan, 2013
 %
 
     [N,~]=size(mDis);

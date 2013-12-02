@@ -1,5 +1,7 @@
 function streamDataVatSubplot(sDataOption, windowSize, disFactor, step)
 %
+% VAT for visualising streaming data.
+%
 % INPUT:
 % sDataOption       - Option for the data stream input.
 %
