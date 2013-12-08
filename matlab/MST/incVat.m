@@ -1,5 +1,5 @@
 function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDis, mExist, mMst, mNewPtsDis)
-% incVat()
+% 
 % Updates an existing Vat image with the new points described in mRNew.
 % The new points are added sequentially to the end.
 %
@@ -18,6 +18,9 @@ function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDi
 % vNewMst   - Updated MST.
 % vRearrangedVerts - Ordered set of vertices (used for VAT display).
 %
+% @author: Jeffrey Chan, 2013
+%
+
     mDis = a*mDis;
     mNewMst = mMst;
     mNewDis = mDis;

@@ -1,4 +1,5 @@
-function [mRearrangedDis, vPermVerts, vMstChain, vMinWeights, mMst, vVertPos] = alignedVat(mDis, fSeqAlign, alignWeight)
+function [mRearrangedDis, vPermVerts, vMstChain, vMinWeights, mMst, vVertPos] =...
+    alignedVat(mDis, fSeqAlign, alignWeight)
 %
 % INPUT:
 % mDis              - Dissimilarity data input
@@ -14,6 +15,8 @@ function [mRearrangedDis, vPermVerts, vMstChain, vMinWeights, mMst, vVertPos] = 
 % Prim's algorithm.
 % Uses both pairwise distances and alignment information to construct the
 % minimal cost traversal.
+%
+% This is for tracking points that persist over time.
 %
 % @author: Jeffrey Chan, 2013
 %
