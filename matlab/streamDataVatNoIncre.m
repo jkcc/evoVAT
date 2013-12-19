@@ -32,13 +32,13 @@ function [tAve,tStd] = streamDataVatNoIncre(sDataOption, windowSize,a)
             end
             mNewDis = pdist2(origVert(:,1:2),cmData{t}(:,1:2),'euclidean');
             mNewPtsDis = cat(1,mNewDis,mCurrDis);
-            mDis = [mDis mNewDis];
-            mDis = [mDis;[mNewDis' mCurrDis]];
-            [~, ~, ~, ~, mMst] = Vat(mDis, visualise);
+            %mDis = [mDis mNewDis];
+            %mDis = [mDis;[mNewDis' mCurrDis]];
+            %[~, ~, ~, ~, mMst] = Vat(mDis, visualise);
             
             %[mDis, mMst, ~, vNewRoot, mExist] = incVat(a,mDis, mExist, mMst, mNewPtsDis, visualise);
             
-            %[mDis, mMst, mExist] = incVatRebuit(mDis, mExist, mNewPtsDis,visualise);
+            [mDis, mMst, mExist] = incVatRebuit(mDis, mExist, mNewPtsDis,visualise);
           
         % remove points that fall outside the window
         else
@@ -64,11 +64,11 @@ function [tAve,tStd] = streamDataVatNoIncre(sDataOption, windowSize,a)
                 mNewDis = pdist2(origVert(:,1:2),cmData{t}(:,1:2),'euclidean');
                 mNewPtsDis = cat(1,mNewDis,mCurrDis);
                 
-                mDis = [mDis mNewDis];
-                mDis = [mDis;[mNewDis' mCurrDis]];
-                [~, ~, ~, ~, mMst] = Vat(mDis, visualise);
+                %mDis = [mDis mNewDis];
+                %mDis = [mDis;[mNewDis' mCurrDis]];
+                %[~, ~, ~, ~, mMst] = Vat(mDis, visualise);
                 
-                %[mDis, mMst, mExist] = incVatRebuit(mDis, mExist, mNewPtsDis,visualise);
+                [mDis, mMst, mExist] = incVatRebuit(mDis, mExist, mNewPtsDis,visualise);
          
                 %[mDis, mMst, vRearrangedVert, vNewRoot, mExist] = incVat(a,mDis, mExist, mMst, mNewPtsDis, visualise);
                
