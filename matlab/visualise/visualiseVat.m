@@ -51,8 +51,11 @@ function visualiseVat(mDis, vRearrangedVert, sHeading, varargin)
     else   
         imagesc(mDis(vRearrangedVert, vRearrangedVert));
         colormap(cmap);
+
     end
     
+    xlim([0,length(vRearrangedVert)]);
+    ylim([0,length(vRearrangedVert)]);
     title(sHeading);
     
     % see if we want to visualise the labels 

@@ -1,4 +1,4 @@
-function streamDataVatSubplot(mData, windowSize, disFactor, step, mCMap,...
+function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
     sAlgorithm, varargin)
 %
 % VAT for visualising streaming data.
@@ -18,14 +18,29 @@ function streamDataVatSubplot(mData, windowSize, disFactor, step, mCMap,...
 % @Author: Jeffrey Chan & Bingzan Liang, 2013
 %
 
+    % parse arguments
+    inParser = inputParser;
+    % default values
     vFeatCols = 1:2;
+    linearWeight = 0.5;
+    
+    addOptional(inParser, 'genSubplot', true);
+    addOptional(inParser, 'featCols', vFeatCols);
+    addOptional(inParser, 'linearWeight', linearWeight);
 
+    parse(inParser, varargin{:});
+    
+    bGenSubplot = inParser.Results.genSubplot;
+    vFeatCols = inParser.Results.featCols;
+    linearWeight = inParser.Results.linearWeight;
+    
+    
     switch sAlgorithm
         case 'separate'
             fDisAlgor = DisAlgorSeparate();
         case 'linear'
             assert(length(varargin) == 1);
-            alpha = varargin{1};
+            alpha = linearWeight;
             fDisAlgor = DisAlgorLinear(alpha);
             
         otherwise
@@ -35,11 +50,11 @@ function streamDataVatSubplot(mData, windowSize, disFactor, step, mCMap,...
 
 
 
-    % load data into cell form
-    cmData = genCmData(mData);
+%     % load data into cell form
+%     cmData = genCmData(mData);
 
     % construct distance matrix
-    mDis = squareform(pdist(cmData{1}(:,1:2), 'euclidean'));
+    mDis = squareform(pdist(cmData{1}(:,vFeatCols), 'euclidean'));
     % construct age matrix (age of points) (assuming age starts at 1)
     mAge = ones(size(cmData{1},1), size(cmData{1},1));
     % construct age of the points
@@ -49,17 +64,20 @@ function streamDataVatSubplot(mData, windowSize, disFactor, step, mCMap,...
     [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
     
     % prepare figure
-    totalFigNum = ceil(length(cmData) / step);
-    figure;
-    hold on;
+    % if subplot prepare
+    if bGenSubplot
+        totalFigNum = ceil(length(cmData) / step);
+        figure;
+        hold on;
     
-    bGenFig = false;
-    figNum = 1;
-    % visualise first time step
-    subplot(1, totalFigNum, figNum);
+    
+        figNum = 1;
+        % visualise first time step
+        subplot(1, totalFigNum, figNum);
+        figNum = figNum + 1;
+    end
     visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', 1),...
-        'cmap', mCMap, 'visualiseLabels', false, 'genFigure', bGenFig, 'ageData', mAge);
-    figNum = figNum + 1;
+        'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
     
     %[mDis] = iVat(mDis);
     mExist = ones(size(mDis,1),size(mDis,2));
@@ -116,10 +134,12 @@ function streamDataVatSubplot(mData, windowSize, disFactor, step, mCMap,...
             mPastData = cat(1, cmData{t}(:,vFeatCols));
            
             if bVisualise
-                subplot(1, totalFigNum, figNum);
+                if bGenSubplot
+                    subplot(1, totalFigNum, figNum);
+                    figNum = figNum + 1;
+                end
                 visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t),...
-                    'cmap', mCMap, 'visualiseLabels', false, 'genFigure', bGenFig, 'ageData', mAge);
-                figNum = figNum + 1;
+                    'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
             end                    
           
         % remove points that fall outside the window
@@ -131,9 +151,12 @@ function streamDataVatSubplot(mData, windowSize, disFactor, step, mCMap,...
                 [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);  
                 
                 if bVisualise
-                    subplot(1, totalFigNum, figNum);
+                    if bGenSubplot
+                        subplot(1, totalFigNum, figNum);
+                        figNum = figNum + 1;
+                    end                    
                     visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t),...
-                        'cmap', mCMap, 'visualiseLabels', false, 'genFigure', bGenFig, 'ageData', mAge);
+                        'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
                 end                    
             else
                 % delete points that were in cmData{t-windowSize}
@@ -169,10 +192,12 @@ function streamDataVatSubplot(mData, windowSize, disFactor, step, mCMap,...
              
                 
                 if bVisualise
-                    subplot(1, totalFigNum, figNum);
+                    if bGenSubplot
+                        subplot(1, totalFigNum, figNum);
+                        figNum = figNum + 1;
+                    end                       
                     visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t),...
-                        'cmap', mCMap, 'visualiseLabels', false, 'genFigure', bGenFig, 'ageData', mAge);
-                    figNum = figNum + 1;
+                        'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
                 end                    
             end % end of if windowSize == 1
         end % end of if t <= windowSize
@@ -205,21 +230,21 @@ function [cmData] = genCmData(mData)
 end % end of function
 
 
-function [mNewPtsDis, mAge] = updateDis(cmData, mAge)
-%
-%
-%
-    mCurrDis = squareform(pdist(cmData{t}(:,1:2),'euclidean'));
-    origVert = [];
-    for i = 1:(t-1)
-        origVert = cat(1,origVert,cmData{i});
-    end
-    mNewDis = pdist2(origVert(:,1:2),cmData{t}(:,1:2),'euclidean');
-    mNewPtsDis = cat(1,mNewDis,mCurrDis);
-            
-    % to merge with incVAT later
-    mAge = cat(2, mAge, t*ones(size(origVert,1), size(mCurrDis,1)));
-    mTemp = cat(2, t*ones(size(mCurrDis,1), size(origVert,1) + size(mCurrDis,1)));
-    mAge = cat(1, mAge, mTemp);
-
-end % end of function
+% function [mNewPtsDis, mAge] = updateDis(cmData, mAge)
+% %
+% %
+% %
+%     mCurrDis = squareform(pdist(cmData{t}(:,1:2),'euclidean'));
+%     origVert = [];
+%     for i = 1:(t-1)
+%         origVert = cat(1,origVert,cmData{i});
+%     end
+%     mNewDis = pdist2(origVert(:,1:2),cmData{t}(:,1:2),'euclidean');
+%     mNewPtsDis = cat(1,mNewDis,mCurrDis);
+%             
+%     % to merge with incVAT later
+%     mAge = cat(2, mAge, t*ones(size(origVert,1), size(mCurrDis,1)));
+%     mTemp = cat(2, t*ones(size(mCurrDis,1), size(origVert,1) + size(mCurrDis,1)));
+%     mAge = cat(1, mAge, mTemp);
+% 
+% end % end of function
