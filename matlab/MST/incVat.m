@@ -1,4 +1,4 @@
-function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDis, mExist, mMst, mNewPtsDis)
+function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(mDis, mExist, mMst, mNewPtsDis)
 % 
 % Updates an existing Vat image with the new points described in mRNew.
 % The new points are added sequentially to the end.
@@ -21,7 +21,7 @@ function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDi
 % @author: Jeffrey Chan, 2013
 %
 
-    mDis = a*mDis;
+%     mDis = a*mDis;
     mNewMst = mMst;
     mNewDis = mDis;
     mNewExist = mExist;
@@ -30,7 +30,8 @@ function [mNewDis, mNewMst, vRearrangedVert, vNewRoot, mNewExist] = incVat(a,mDi
     
     old = size(mDis,1);
     new = size(mNewPtsDis,1);
-    mNewTempDis = a * mNewPtsDis(1:old,:);
+%     mNewTempDis = a * mNewPtsDis(1:old,:);
+    mNewTempDis = mNewPtsDis(1:old,:);
     mNewTempDis2 = mNewPtsDis((old+1):new,:);
     mNewPtsDis = [mNewTempDis;mNewTempDis2];
     

@@ -1,6 +1,6 @@
-function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
-    sAlgorithm, varargin)
-%
+function streamDataVatSubplot(cmData, windowSize, step, mCMap,...
+    sAlgorithmOption, sIntensityOption, varargin)
+
 % VAT for visualising streaming data.
 %
 % INPUT:
@@ -24,29 +24,43 @@ function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
     vFeatCols = 1:2;
     linearWeight = 0.5;
     
-    addOptional(inParser, 'genSubplot', true);
-    addOptional(inParser, 'featCols', vFeatCols);
-    addOptional(inParser, 'linearWeight', linearWeight);
+    addParameter(inParser, 'genSubplot', true);
+    addParameter(inParser, 'featCols', vFeatCols);
+    addParameter(inParser, 'linearWeight', linearWeight);
+    addParameter(inParser, 'incVat', true);
+    addParameter(inParser, 'intensityRange', [0.1, 1]);
 
     parse(inParser, varargin{:});
     
     bGenSubplot = inParser.Results.genSubplot;
     vFeatCols = inParser.Results.featCols;
     linearWeight = inParser.Results.linearWeight;
+    bIncVat = inParser.Results.incVat;
+    vIntensityRange = inParser.Results.intensityRange;
     
     
-    switch sAlgorithm
+    switch sAlgorithmOption
         case 'separate'
             fDisAlgor = DisAlgorSeparate();
         case 'linear'
-            assert(length(varargin) == 1);
-            alpha = linearWeight;
-            fDisAlgor = DisAlgorLinear(alpha);
+            fDisAlgor = DisAlgorLinear(linearWeight);
             
         otherwise
             warn(sprintf('Unknown sAlgorithm option %s', sAlgorithm));
             return;
     end % end of switch
+    
+    
+    switch sIntensityOption
+        case 'linear'
+            fIntensityMapper = LinearIntensityMapper(vIntensityRange(1), vIntensityRange(2));
+        case 'exponential'
+            fIntensityMapper = ExpIntensityMapper(vIntensityRange(1), vIntensityRange(2));
+            
+        otherwise
+            warn('Unknown sIntensityOption option %s', sIntensityOption);
+            return;
+    end % end of switch    
 
 
 
@@ -76,7 +90,7 @@ function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
         subplot(1, totalFigNum, figNum);
         figNum = figNum + 1;
     end
-    visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', 1),...
+    visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', 1), fIntensityMapper,...
         'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
     
     %[mDis] = iVat(mDis);
@@ -112,33 +126,26 @@ function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
         
         % no need to remove points when our window size is growing
         if t <= windowSize
-%             mCurrDis = squareform(pdist(cmData{t}(:,1:2),'euclidean'));
-%             origVert = [];
-%             for i = 1:(t-1)
-%                 origVert = cat(1,origVert,cmData{i});
-%             end
-%             mNewDis = pdist2(origVert(:,1:2),cmData{t}(:,1:2),'euclidean');
-%             mNewPtsDis = cat(1,mNewDis,mCurrDis);
-%             
-%             % to merge with incVAT later
-%             mAge = cat(2, mAge, t*ones(size(origVert,1), size(mCurrDis,1)));
-%             mTemp = cat(2, t*ones(size(mCurrDis,1), size(origVert,1) + size(mCurrDis,1)));
-%             mAge = cat(1, mAge, mTemp);
          
             [mNewPtsDis, mAge, vPointAge] = fDisAlgor.computeNewDis(cmData{t}(:,1:2), mPastData, t, vPointAge, mAge);
-%             [mNewPtsDis, mAge] = updateDis(cmData, mAge);
             
-            [mDis, mMst, vRearrangedVert, vNewRoot, mExist] = incVat(disFactor, mDis, mExist, mMst, mNewPtsDis);
+            if bIncVat
+                [mDis, mMst, vRearrangedVert, vNewRoot, mExist] = incVat(1, mDis, mExist, mMst, mNewPtsDis);
+            else
+                mDis = cat(2, mDis, mNewPtsDis(1:size(mPastData,1), :));
+                mDis = cat(1, mDis, mNewPtsDis');
+                [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+            end
             
             
-            mPastData = cat(1, cmData{t}(:,vFeatCols));
+            mPastData = cat(1, mPastData, cmData{t}(:,vFeatCols));
            
             if bVisualise
                 if bGenSubplot
                     subplot(1, totalFigNum, figNum);
                     figNum = figNum + 1;
                 end
-                visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t),...
+                visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t), fIntensityMapper,...
                     'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
             end                    
           
@@ -155,7 +162,7 @@ function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
                         subplot(1, totalFigNum, figNum);
                         figNum = figNum + 1;
                     end                    
-                    visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t),...
+                    visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t), fIntensityMapper,...
                         'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
                 end                    
             else
@@ -165,13 +172,18 @@ function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
             
                 % remove from MST
                 %[mDis,vRearrangedVert,mMst,mExist,vNewRoot] = deincVat(mDis,mMst,mExist,vPointsToDel,false);
-                [mDis, vRearrangedVert, mMst, mExist, vNewRoot] = deincVat2(mDis,mMst,mExist,vPointsToDel);
+                if bIncVat
+                    [mDis, vRearrangedVert, mMst, mExist, vNewRoot] = deincVat2(mDis,mMst,mExist,vPointsToDel);
+                else
+                    mDis(vPointsToDel,:)=[];
+                    mDis(:,vPointsToDel)=[];
+                end
                 % to merge 
                 mAge(vPointsToDel,:) = [];
                 mAge(:,vPointsToDel) = [];
                 mPastData(vPointsToDel,:) = [];
                 vPointAge(vPointsToDel) = [];
-                
+                      
 %                 % compute new distances
 %                 mCurrDis = squareform(pdist(cmData{t}(:,1:2), 'euclidean'));
 %                 origVert = [];
@@ -188,15 +200,24 @@ function streamDataVatSubplot(cmData, windowSize, disFactor, step, mCMap,...
 %                 [mNewPtsDis, mAge] = updateDis(cmData, mAge);
                 [mNewPtsDis, mAge, vPointAge] = fDisAlgor.computeNewDis(cmData{t}(:,1:2), mPastData, t, vPointAge, mAge);
                 
-                [mDis, mMst, vRearrangedVert, vNewRoot, mExist] = incVat(disFactor, mDis, mExist, mMst, mNewPtsDis);
-             
+            
+                if bIncVat
+                    [mDis, mMst, vRearrangedVert, vNewRoot, mExist] = incVat(1, mDis, mExist, mMst, mNewPtsDis);
+                else
+                    mDis = cat(2, mDis, mNewPtsDis(1:size(mPastData,1), :));
+                    mDis = cat(1, mDis, mNewPtsDis');
+                    [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+                end
+                
+                mPastData = cat(1, mPastData, cmData{t}(:,vFeatCols));
+                    
                 
                 if bVisualise
                     if bGenSubplot
                         subplot(1, totalFigNum, figNum);
                         figNum = figNum + 1;
                     end                       
-                    visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t),...
+                    visualiseVat(mDis, vRearrangedVert, sprintf('time = %d', t), fIntensityMapper,...
                         'cmap', mCMap, 'visualiseLabels', false, 'genFigure', ~bGenSubplot, 'ageData', mAge);
                 end                    
             end % end of if windowSize == 1
@@ -209,25 +230,25 @@ end % end of function
 %%% UTILITIES %%%
 
 
-function [cmData] = genCmData(mData)
-%
+% function [cmData] = genCmData(mData)
+% %
+% % 
+% %
 % 
-%
-
-    timeCol = 3;
-
-    cmData = cell(max(mData(:,timeCol)),1);
-    for i = 1:length(cmData)
-        cmData{i} = mData((mData(:,timeCol)==i),:);
-
-        %temp = tempData(:,3) == i;
-        %for j = 1:length(temp)
-            %if temp(j) == 1
-                %cmData{i} = cat(1,cmData{i},tempData(j,:));
-            %end
-        %end
-    end
-end % end of function
+%     timeCol = 3;
+% 
+%     cmData = cell(max(mData(:,timeCol)),1);
+%     for i = 1:length(cmData)
+%         cmData{i} = mData((mData(:,timeCol)==i),:);
+% 
+%         %temp = tempData(:,3) == i;
+%         %for j = 1:length(temp)
+%             %if temp(j) == 1
+%                 %cmData{i} = cat(1,cmData{i},tempData(j,:));
+%             %end
+%         %end
+%     end
+% end % end of function
 
 
 % function [mNewPtsDis, mAge] = updateDis(cmData, mAge)

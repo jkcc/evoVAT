@@ -1,4 +1,4 @@
-function colourAlphaImagesc(mDis, mTime, mColourMap, minAlphaVal, maxAlphaVal, vBackgrdColour)
+function colourAlphaImagesc(mDis, mTime, mColourMap, fAlphaMapper, vBackgrdColour)
 %
 % Produces a scaled colourmap image that combines both a distance component
 % (scaled into colourmap) and also a time component (used to decrease
@@ -29,8 +29,12 @@ function colourAlphaImagesc(mDis, mTime, mColourMap, minAlphaVal, maxAlphaVal, v
 %     colormap(mColourMap);
     
     % linear mapping into alpha
-    mNormTime = (mTime - timeCLim(1)) / (timeCLim(2) - timeCLim(1));
-    mAlpha = min((mNormTime * (maxAlphaVal - minAlphaVal)) + minAlphaVal, maxAlphaVal);
+    if timeCLim(2) ~= timeCLim(1)
+        mNormTime = (mTime - timeCLim(1)) / (timeCLim(2) - timeCLim(1));
+    else
+        mNormTime = mTime;
+    end
+    mAlpha = fAlphaMapper.computeIntensity(mNormTime);
     
     % background colour of white
 %     vBackgrdColour = [0.95,0.95,0.95];

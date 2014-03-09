@@ -1,4 +1,4 @@
-function visualiseVat(mDis, vRearrangedVert, sHeading, varargin)
+function visualiseVat(mDis, vRearrangedVert, sHeading, fIntensityMap, varargin)
 %
 % Visualise the VAT image.
 %
@@ -10,28 +10,15 @@ function visualiseVat(mDis, vRearrangedVert, sHeading, varargin)
     defaultCMap = hsv;
     
     addOptional(inParser, 'cmap', defaultCMap);
+    addOptional(inParser, 'backgroundColour',[1,1,1]); 
     addOptional(inParser, 'visualiseLabels', false);
     addOptional(inParser, 'genFigure', true);
     addOptional(inParser, 'ageData', []);
     
     parse(inParser, varargin{:});
     
-%     % check optional arguments
-%     switch length(varargin)
-%         case 1
-%             cmap = varargin{1};
-%         case 2
-%             cmap = varargin{1};
-%             bVisualiseLabels = varargin{2};
-%         case 3
-%             cmap = varargin{1};
-%             bVisualiseLabels = varargin{2};            
-%             bSubplot = varargin{3};
-%         otherwise
-%     end % end of switch
-        
-
     cmap = inParser.Results.cmap;
+    vBackColour = inParser.Results.backgroundColour;
     bGenFigure = inParser.Results.genFigure;
     bVisualiseLabels = inParser.Results.visualiseLabels;
     mAge = inParser.Results.ageData;
@@ -43,11 +30,7 @@ function visualiseVat(mDis, vRearrangedVert, sHeading, varargin)
     
     % have age data so use it for alpha values
     if ~isempty(mAge)
-        minAlpha = 0.1;
-        maxAlpha = 1.0;
-        % white background colour
-        vBackColour = [1,1,1];
-        colourAlphaImagesc(mDis(vRearrangedVert, vRearrangedVert), mAge(vRearrangedVert, vRearrangedVert), cmap, minAlpha, maxAlpha, vBackColour);
+        colourAlphaImagesc(mDis(vRearrangedVert, vRearrangedVert), mAge(vRearrangedVert, vRearrangedVert), cmap, fIntensityMap, vBackColour);
     else   
         imagesc(mDis(vRearrangedVert, vRearrangedVert));
         colormap(cmap);
