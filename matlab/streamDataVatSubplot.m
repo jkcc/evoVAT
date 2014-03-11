@@ -29,6 +29,7 @@ function streamDataVatSubplot(cmData, windowSize, step, mCMap,...
     addParameter(inParser, 'linearWeight', linearWeight);
     addParameter(inParser, 'incVat', true);
     addParameter(inParser, 'intensityRange', [0.1, 1]);
+    addParameter(inParser, 'matlabVat', true);
 
     parse(inParser, varargin{:});
     
@@ -37,6 +38,7 @@ function streamDataVatSubplot(cmData, windowSize, step, mCMap,...
     linearWeight = inParser.Results.linearWeight;
     bIncVat = inParser.Results.incVat;
     vIntensityRange = inParser.Results.intensityRange;
+    bMatlabVat = inParser.Results.matlabVat;
     
     
     switch sAlgorithmOption
@@ -75,7 +77,12 @@ function streamDataVatSubplot(cmData, windowSize, step, mCMap,...
     vPointAge = ones(size(cmData{1},1), 1);
   
     % construct original MST
-    [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+    if bMatlabVat
+        [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+    else
+        [vRearrangedVert, mMst] = Vat2(mDis);
+        mDis = mDis(vRearrangedVert, vRearrangedVert);
+    end
     
     % prepare figure
     % if subplot prepare
@@ -134,7 +141,12 @@ function streamDataVatSubplot(cmData, windowSize, step, mCMap,...
             else
                 mDis = cat(2, mDis, mNewPtsDis(1:size(mPastData,1), :));
                 mDis = cat(1, mDis, mNewPtsDis');
-                [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+                if bMatlabVat
+                    [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+                else
+                    [vRearrangedVert, mMst] = Vat2(mDis);
+                    mDis = mDis(vRearrangedVert, vRearrangedVert);
+                end
             end
             
             
@@ -155,7 +167,12 @@ function streamDataVatSubplot(cmData, windowSize, step, mCMap,...
                 mDis = squareform(pdist(cmData{t}(:,1:2), 'euclidean'));
                 mAge = t * ones(size(cmData{t},1), size(cmData{t},1));
                 
-                [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);  
+                if bMatlabVat
+                    [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);  
+                else
+                    [vRearrangedVert, mMst] = Vat2(mDis);
+                    mDis = mDis(vRearrangedVert, vRearrangedVert);
+                end
                 
                 if bVisualise
                     if bGenSubplot
@@ -206,7 +223,12 @@ function streamDataVatSubplot(cmData, windowSize, step, mCMap,...
                 else
                     mDis = cat(2, mDis, mNewPtsDis(1:size(mPastData,1), :));
                     mDis = cat(1, mDis, mNewPtsDis');
-                    [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+                    if bMatlabVat
+                        [mDis, vRearrangedVert, ~, ~, mMst] = Vat(mDis);
+                    else
+                        [vRearrangedVert, mMst] = Vat2(mDis);
+                        mDis = mDis(vRearrangedVert, vRearrangedVert);
+                    end
                 end
                 
                 mPastData = cat(1, mPastData, cmData{t}(:,vFeatCols));

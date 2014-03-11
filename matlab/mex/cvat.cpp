@@ -104,7 +104,7 @@ void primsAlgor(const double* pMDis, int rowNum, int colNum, double* pVPermVerts
             maxCol = std::floor(i / rowNum);
 //             cout << "maxRow = " << maxRow << ", maxCol = " << maxCol;
         }
-        cout << endl;
+//         cout << endl;
     }
     
     // choose maxRow as the starting vertex and remove it from lIndices
@@ -207,20 +207,25 @@ void primsAlgor(const double* pMDis, int rowNum, int colNum, double* pVPermVerts
     // update of MST
     // sort the columns (destIndices)
     std::sort(vMstDestIndices.begin(), vMstDestIndices.end(), pairComparator);
+    int lastColSum = 0;
+    // this is always 0
+    pMMstJc[0] = lastColSum; 
+    
     int currIndex = 0;
-    int currColIndex = 0;
-    mwIndex lastNZColIndex = 0;
-    std::cout << vMstDestIndices.size() << std::endl;
+    int nextColIndexToFill = 1;
+    
+    
+//     std::cout << vMstDestIndices.size() << std::endl;
     typename C_PairIndices::iterator itPairs  = vMstDestIndices.begin();
     if ( itPairs != vMstDestIndices.end()) {
-        std::cout << "(" << vMstSrcIndices[itPairs->second] << ", " << itPairs->first << "), index = " << itPairs->second <<  std::endl;
-        while (currColIndex < itPairs->first) {
-            pMMstJc[currColIndex] = lastNZColIndex;
-            ++currColIndex;
+//         std::cout << "(" << vMstSrcIndices[itPairs->second] << ", " << itPairs->first << "), index = " << itPairs->second <<  std::endl;
+        
+        while (nextColIndexToFill <= itPairs->first) {
+            pMMstJc[nextColIndexToFill] = lastColSum;
+            ++nextColIndexToFill;
         }
         
-        ++lastNZColIndex;
-        pMMstJc[currColIndex] = lastNZColIndex;
+        ++lastColSum;
         pMMstIr[currIndex] = vMstSrcIndices[itPairs->second];
         pMMst[currIndex] = 1;
         ++currIndex;
@@ -229,39 +234,42 @@ void primsAlgor(const double* pMDis, int rowNum, int colNum, double* pVPermVerts
         
         // do rest of pairs
         for ( ; itPairs != vMstDestIndices.end(); ++itPairs) {
-            std::cout << "(" << vMstSrcIndices[itPairs->second] << ", " << itPairs->first << "), index = " << itPairs->second <<  std::endl;
-            while (itPairs->first != currColIndex) {
-                pMMstJc[currColIndex] = lastNZColIndex;
-                ++currColIndex;
+//             std::cout << "(" << vMstSrcIndices[itPairs->second] << ", " << itPairs->first << "), index = " << itPairs->second <<  std::endl;
+            while (nextColIndexToFill <= itPairs->first) {
+                pMMstJc[nextColIndexToFill] = lastColSum;
+                ++nextColIndexToFill;
             }
             
-            ++lastNZColIndex;
-            pMMstJc[currColIndex] = lastNZColIndex;
+            ++lastColSum;
             pMMstIr[currIndex] = vMstSrcIndices[itPairs->second];
             pMMst[currIndex] = 1;
             ++currIndex;
         }
     }
     
-    
-    cout << "pMMstJc" << endl;
-    for (int j = 0; j < rowNum ; ++j) {
-        cout << pMMstJc[j] << ", ";
+    while (nextColIndexToFill <= rowNum+1) {
+        pMMstJc[nextColIndexToFill] = lastColSum;
+        ++nextColIndexToFill;
     }
-    cout << endl;
     
-    cout << "pMMstIr" << endl;
-    for (int j = 0; j < rowNum-1 ; ++j) {
-        cout << pMMstJc[j] << ", ";
-    }
-    cout << endl;
-    
-    cout << "pMMst" << endl;
-    for (int j = 0; j < rowNum-1 ; ++j) {
-        cout << pMMst[j] << ", ";
-    }    
-    cout << endl;
-    
+//     cout << "pMMstJc" << endl;
+//     for (int j = 0; j < rowNum+1 ; ++j) {
+//         cout << pMMstJc[j] << ", ";
+//     }
+//     cout << endl;
+//     
+//     cout << "pMMstIr" << endl;
+//     for (int j = 0; j < rowNum-1 ; ++j) {
+//         cout << pMMstJc[j] << ", ";
+//     }
+//     cout << endl;
+//     
+//     cout << "pMMst" << endl;
+//     for (int j = 0; j < rowNum-1 ; ++j) {
+//         cout << pMMst[j] << ", ";
+//     }    
+//     cout << endl;
+//     
 } // end of primsAlgor()
 
 
