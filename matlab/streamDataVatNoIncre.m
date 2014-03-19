@@ -52,7 +52,7 @@ function [tAve,tStd] = streamDataVatNoIncre(sDataOption, windowSize,a)
             
                 % remove from MST
                 %[mDis,vRearrangedVert,mMst,mExist,vNewRoot] = deincVat(mDis,mMst,mExist,vPointsToDel,false);
-                [mDis,vRearrangedVert,mMst,mExist,vNewRoot] = deincVatNoMst(mDis,mMst,mExist,vPointsToDel,false);
+                [mDis,vRearrangedVert,mMst,mExist,vNewRoot] = deincVatNomExist(mDis,mMst,mExist,vPointsToDel,false);
                 %[mDis,mExist] = deincVatNoMst(mDis,mExist,vPointsToDel);
                 
                 % compute new distances
