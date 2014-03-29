@@ -49,7 +49,8 @@ if(VATflag),
     end;
 else
 %     [RV,C,I,~,~]=VAT(R);
-    [RV,I,C]=Vat(R, 0);
+    [RV,I,C]=Vat(R);
+    
     RiV=zeros(N);
     for r=2:N,
         c=1:r-1;
